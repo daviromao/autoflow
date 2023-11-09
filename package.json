@@ -1,11 +1,12 @@
 {
-  "name": "simulators",
+  "name": "central",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "lint": "eslint . --ext .ts",
-    "start:dev": "nodemon --exec ts-node src/index.ts"
+    "start:dev": "nodemon --exec ts-node src/index.ts",
+    "setup:simulator": "npx ts-node src/simulator/setup.ts"
   },
   "keywords": [],
   "author": "",
