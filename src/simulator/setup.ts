@@ -30,6 +30,8 @@ const semaphores = [
 ];
 
 async function main() {
+  // create capabilities
+
   for (const resource of semaphores) {
     const sendData = resource;
     const response = await fetch("http://10.10.10.104:8000/adaptor/resources", {

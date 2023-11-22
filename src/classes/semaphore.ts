@@ -11,4 +11,5 @@ export interface Semaphore {
   carCount: number;
   emergency: boolean;
   description: string;
+  fator: number;
 }
