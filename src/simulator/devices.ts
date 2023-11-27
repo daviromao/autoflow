@@ -1,11 +1,11 @@
 import { ColorStatus, Semaphore } from "../classes/semaphore";
 import { Colors, getColor } from "./colors";
+import express, { Request, Response } from "express";
 
 const semaphores: Semaphore[] = [];
-const timeOpen = 20000;
-const timeToRemoveCar = 1500;
+let timeAux = new Date();
 
-async function main() {
+export async function setupDevices() {
   await fetchSemaphores();
 
   for (const semaphore of semaphores) {
@@ -14,7 +14,7 @@ async function main() {
         Colors.END
       } ${semaphore.description.replace("-", " ")}: ${semaphore.fator}${
         Colors.END
-      } `
+      } fator`
     );
   }
 
@@ -47,46 +47,48 @@ async function fetchSemaphores() {
   }
 }
 
-async function enableSemaphore(semaphore: Semaphore) {
-  semaphore.colorStatus = ColorStatus.GREEN;
-
-  let time = 0;
-  while (time < timeOpen) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    time += 500;
-
-    if (time % timeToRemoveCar === 0 && semaphore.carCount > 0) {
-      semaphore.carCount = Math.max(semaphore.carCount - 2, 0);
+setInterval(async () => {
+  for (const semaphore of semaphores) {
+    switch (semaphore.colorStatus) {
+      case ColorStatus.GREEN:
+        await handleGreen(semaphore);
+        break;
+      case ColorStatus.YELLOW:
+        handleYellow(semaphore);
+        break;
+      case ColorStatus.RED:
+        break;
     }
+  }
+}, 500);
+
+async function handleGreen(semaphore: Semaphore) {
+  if (timeAux.getTime() + 3000 < new Date().getTime()) {
+    semaphore.carCount = Math.max(semaphore.carCount - 2, 0);
+    timeAux = new Date();
   }
 }
 
-async function turnYellow(semaphore: Semaphore) {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+async function handleYellow(semaphore: Semaphore) {
   semaphore.carCount = semaphore.carCount > 0 ? semaphore.carCount - 1 : 0;
-
-  semaphore.colorStatus = ColorStatus.YELLOW;
 }
 
-async function disableSemaphore(semaphore: Semaphore) {
-  semaphore.colorStatus = ColorStatus.RED;
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+console.log("STATUS DOS SEMAFOROS");
+
+if (1) {
+  setInterval(() => {
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+    const semaphoresStatus = semaphores.map((semaphore) => {
+      return `${getColor(semaphore.colorStatus)}[•]${Colors.END} ${getColor(
+        semaphore.description.split("-")[1] as any
+      )} ${semaphore.description.replace("-", " ")}: ${semaphore.carCount}${
+        Colors.END
+      } `;
+    });
+    process.stdout.write(semaphoresStatus.join(" | "));
+  }, 500);
 }
-
-console.log("STATUS DOS SEMAFOROS\n");
-
-setInterval(() => {
-  process.stdout.clearLine(0);
-  process.stdout.cursorTo(0);
-  const semaphoresStatus = semaphores.map((semaphore) => {
-    return `${getColor(semaphore.colorStatus)}[•]${Colors.END} ${getColor(
-      semaphore.description.split("-")[1] as any
-    )} ${semaphore.description.replace("-", " ")}: ${semaphore.carCount}${
-      Colors.END
-    } `;
-  });
-  process.stdout.write(semaphoresStatus.join(" | "));
-});
 
 setInterval(async () => {
   for (const semaphore of semaphores) {
@@ -108,6 +110,28 @@ setInterval(async () => {
       },
     }).catch((err) => console.log(err));
   }
-}, 1000);
+}, 500);
 
-main();
+setupDevices();
+
+const app = express();
+const port = 8000;
+
+app.use(express.json());
+
+app.post("/webhook/:uuid", (req: Request<{ uuid: string }>, res: Response) => {
+  for (const semaphore of semaphores) {
+    if (semaphore.uuid === req.params.uuid) {
+      semaphore.colorStatus = req.body.command.value;
+      if (semaphore.colorStatus === ColorStatus.GREEN) {
+        timeAux = new Date();
+      }
+      break;
+    }
+  }
+  res.status(200).send("Webhook recebido com sucesso!");
+});
+
+app.listen(port, () => {
+  console.log(`RECEBIMENTO DE COMANDOS HABILITADOS\n`);
+});
