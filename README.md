@@ -30,8 +30,15 @@ yarn setup:simulator
 yarn start
 ```
 
-Após isso, os sensores estarão rodando e enviando dados para a interscity.
-Também é possível receber os comandos enviados pela interscity.
+Após isso, os sensores estarão rodando e enviando dados para a interscity. Os sensores aumentaram a quantidade de carros conforme o tempo baseado no seu fator, o fator indica o quanto o sensor aumenta a quantidade de carros.
+
+
+- Quando os semáforos estão vermelho é possível visualizar um aumento de carro;
+- Quando os semáforos estão verde é possível visualizar uma diminuição de carro;
+- Quando os semáforos estão amarelo é possível visualizar uma diminuição de carro em uma velocidade menor que o verde.
+
+
+Também é possível receber os comandos enviados pela interscity. 
 
 Caso queira alterar o estado dos sensores, basta enviar uma requisição http para o endereço `http://10.10.10.104:8000/actuator/commands` com o seguinte corpo:
 
