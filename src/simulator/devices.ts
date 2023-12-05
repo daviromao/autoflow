@@ -1,3 +1,7 @@
+/*
+  Esse script simula o comportamento de um semáforo, gerando dados aleatórios de carros passando por ele.
+*/
+
 import { ColorStatus, Semaphore } from "../classes/semaphore";
 import { Colors, getColor } from "./colors";
 import express, { Request, Response } from "express";
@@ -75,20 +79,18 @@ async function handleYellow(semaphore: Semaphore) {
 
 console.log("STATUS DOS SEMAFOROS");
 
-if (1) {
-  setInterval(() => {
-    process.stdout.clearLine(0);
-    process.stdout.cursorTo(0);
-    const semaphoresStatus = semaphores.map((semaphore) => {
-      return `${getColor(semaphore.colorStatus)}[•]${Colors.END} ${getColor(
-        semaphore.description.split("-")[1] as any
-      )} ${semaphore.description.replace("-", " ")}: ${semaphore.carCount}${
-        Colors.END
-      } `;
-    });
-    process.stdout.write(semaphoresStatus.join(" | "));
-  }, 500);
-}
+setInterval(() => {
+  process.stdout.clearLine(0);
+  process.stdout.cursorTo(0);
+  const semaphoresStatus = semaphores.map((semaphore) => {
+    return `${getColor(semaphore.colorStatus)}[•]${Colors.END} ${getColor(
+      semaphore.description.split("-")[1] as any
+    )} ${semaphore.description.replace("-", " ")}: ${semaphore.carCount}${
+      Colors.END
+    } `;
+  });
+  process.stdout.write(semaphoresStatus.join(" | "));
+}, 500);
 
 setInterval(async () => {
   for (const semaphore of semaphores) {

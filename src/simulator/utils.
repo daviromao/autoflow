@@ -1,0 +1,7 @@
+import { Colors, getColor } from "./colors";
+
+const semaphoresInfo = semaphores.map((semaphore) => {
+  const color = getColor(semaphore.description.split("-")[1] as any);
+  const formattedDescription = semaphore.description.replace("-", " ");
+  return `${color}[•]${Colors.END} ${formattedDescription}: ${semaphore.fator}${Colors.END} fator`;
+});
