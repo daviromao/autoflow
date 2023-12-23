@@ -30,7 +30,36 @@ const semaphores = [
 ];
 
 async function main() {
-  // create capabilities
+  const cap1 = await fetch("http://10.10.10.104:8000/catalog/capabilities", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: "semaphore-camera",
+      description: `Capability to sensor of a semaphore camera`,
+      capability_type: "sensor",
+    }),
+  });
+
+  const cap2 = await fetch("http://10.10.10.104:8000/catalog/capabilities", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: "semaphore",
+      description: `Capability to control of a semaphore`,
+      capability_type: "actuator",
+    }),
+  });
+
+  console.log(cap1.status);
+  console.log(cap2.status);
+  if (cap1.status !== 201 || cap2.status !== 201) {
+    console.log("Error creating capabilities");
+    return;
+  }
 
   for (const resource of semaphores) {
     const sendData = resource;
